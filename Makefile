@@ -5,6 +5,7 @@ TWEAK_NAME = TiktokStreakTweak
 TiktokStreakTweak_FILES = Tweak.xm
 TiktokStreakTweak_FRAMEWORKS = Foundation UIKit
 TiktokStreakTweak_PLIST_PATH = TiktokStreakTweak.plist
+TiktokStreakTweak_INSTALL_PATH = /Library/MobileSubstrate/DynamicLibraries
 
 include $(THEOS)/makefiles/tweak.mk
 
