@@ -11,12 +11,16 @@ jobs:
       - name: Install Theos
         run: |
           export THEOS=/home/runner/theos
-          # Sử dụng biến môi trường để bỏ qua việc nhập mật khẩu và sudo
-          export THEOS_INSTALL_METHOD=automatic
-          bash -c "$(curl -fsSL https://raw.githubusercontent.com/theos/theos/master/bin/install-theos)"
+          bash -c "$(curl -fsSL https://raw.githubusercontent.com/theos/theos/master/bin/install-theos)" -- --no-sudo
       
       - name: Build Tweak
         run: |
           export THEOS=/home/runner/theos
           export PATH=$THEOS/bin:$PATH
           make package
+          
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: TweakPackage
+          path: packages/*.deb
