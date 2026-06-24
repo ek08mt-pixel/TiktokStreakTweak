@@ -4,17 +4,17 @@ on: [push, pull_request, workflow_dispatch]
 
 jobs:
   build:
-    name: Build Tweak
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
+      - uses: actions/checkout@v4
+      
       - name: Install Theos
         run: |
-          bash -c "$(curl -fsSL https://raw.githubusercontent.com/theos/theos/master/bin/install-theos)"
+          mkdir -p /opt/theos
+          git clone --recursive https://github.com/theos/theos /opt/theos
 
-      - name: Build Package
+      - name: Build Tweak
         run: |
           export THEOS=/opt/theos
+          export PATH=/opt/theos/bin:$PATH
           make package
