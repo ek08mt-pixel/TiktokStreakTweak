@@ -14,5 +14,5 @@ jobs:
       
       - name: Build Tweak
         run: |
-          export THEOS=/opt/theos
+          source /opt/theos/bin/theos.sh
           make package
