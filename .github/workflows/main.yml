@@ -1,98 +1,18 @@
 name: Build iOS Tweak
 
-on:
-  push:
-    branches: [ main, master ]
-  pull_request:
-    branches: [ main, master ]
-  workflow_dispatch:
+on: [push, pull_request, workflow_dispatch]
 
 jobs:
-  build-tweak:
+  build:
+    name: Build Tweak
     runs-on: ubuntu-latest
     container:
       image: theos/theos:latest
-    
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
-    
-    - name: Update package list and install dependencies
-      run: |
-        apt-get update
-        apt-get install -y perl zip unzip clang make ldid git
-    
-    - name: Setup Theos environment
-      run: |
-        echo "THEOS=/opt/theos" >> $GITHUB_ENV
-        echo "THEOS_DEVICE_IP=localhost" >> $GITHUB_ENV
-        mkdir -p /opt/theos
-        # If you need CaptainHook headers, ensure they're in include path
-        mkdir -p $GITHUB_WORKSPACE/include
-        # Download CaptainHook headers if needed
-        if [ ! -d "include/CaptainHook" ]; then
-          echo "Downloading CaptainHook headers..."
-          git clone https://github.com/rpetrich/CaptainHook.git /tmp/captainhook
-          cp -r /tmp/captainhook/Headers/CaptainHook include/
-        fi
-    
-    - name: Verify project structure
-      run: |
-        echo "Current directory: $(pwd)"
-        echo "Project files:"
-        ls -la
-        echo "Checking required files..."
-        if [ -f "Makefile" ] && [ -f "control" ] && [ -f "Tweak.xm" ]; then
-          echo "✅ All required files present"
-        else
-          echo "❌ Missing required files"
-          exit 1
-        fi
-    
-    - name: Clean previous builds
-      run: |
-        if [ -f "Makefile" ]; then
-          make clean || true
-        fi
-    
-    - name: Build tweak package
-      env:
-        THEOS: /opt/theos
-        SDKVERSION: 14.0
-      run: |
-        # Set up THEOS environment
-        export THEOS=/opt/theos
-        export PATH=$THEOS/bin:$PATH
-        
-        # Make the package
-        make package FINALPACKAGE=1
-        
-        # Check if .deb file was created
-        echo "Looking for .deb files..."
-        find . -name "*.deb" -type f
-    
-    - name: Upload tweak package
-      uses: actions/upload-artifact@v4
-      with:
-        name: tweak-package
-        path: |
-          packages/*.deb
-          *.deb
-        retention-days: 30
-    
-    - name: Build summary
-      run: |
-        echo "## Build Summary" >> $GITHUB_STEP_SUMMARY
-        echo "✅ Tweak built successfully!" >> $GITHUB_STEP_SUMMARY
-        echo "### Package details:" >> $GITHUB_STEP_SUMMARY
-        if [ -f control ]; then
-          echo '```' >> $GITHUB_STEP_SUMMARY
-          cat control >> $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
-        fi
-        echo "### Generated packages:" >> $GITHUB_STEP_SUMMARY
-        find . -name "*.deb" -exec echo "- {}" \; >> $GITHUB_STEP_SUMMARY
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
 
-        
+      - name: Build Package
+        run: make package
