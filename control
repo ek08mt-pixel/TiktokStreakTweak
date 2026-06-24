@@ -1,0 +1,9 @@
+Package: com.yourusername.myawesometweak
+Name: MyAwesomeTweak
+Version: 1.0.0
+Architecture: iphoneos-arm
+Description: An awesome tweak for iOS
+Maintainer: Your Name <your.email@example.com>
+Author: Your Name <your.email@example.com>
+Section: Tweaks
+Depends: mobilesubstrate (>= 0.9.5000), firmware (>= 14.0)
