@@ -14,7 +14,6 @@ jobs:
       
       - name: Build Tweak
         run: |
-          # Dùng lệnh này để Theos tự cấu hình môi trường cho chính nó
           export THEOS=$(ls -d /home/runner/theos)
           export PATH=$THEOS/bin:$PATH
           make package
