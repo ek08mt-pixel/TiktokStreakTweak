@@ -14,5 +14,6 @@ jobs:
       
       - name: Build Tweak
         run: |
-          source /opt/theos/bin/theos.sh
-          make package
+          # Dùng đường dẫn mặc định mà script cài đặt tạo ra
+          /home/runner/theos/bin/logos.pl Tweak.xm > Tweak.xm.mm
+          make package THEOS=/home/runner/theos
