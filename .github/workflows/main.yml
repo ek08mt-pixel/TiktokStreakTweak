@@ -6,13 +6,17 @@ jobs:
   build:
     name: Build Tweak
     runs-on: ubuntu-latest
-    container:
-      image: theos/theos:latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           submodules: recursive
 
+      - name: Install Theos
+        run: |
+          bash -c "$(curl -fsSL https://raw.githubusercontent.com/theos/theos/master/bin/install-theos)"
+
       - name: Build Package
-        run: make package
+        run: |
+          export THEOS=/opt/theos
+          make package
