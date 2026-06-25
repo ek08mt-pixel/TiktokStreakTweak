@@ -1,20 +1,28 @@
 #import <UIKit/UIKit.h>
 
-%hook AWEIMMessageService
 
-// Thử hook vào hàm nhận tin nhắn mới (thường là tên này trong các app chat)
-- (void)didReceiveMessage:(id)arg1 {
-    %orig; // Cho nó chạy gốc
+%hook NSNotificationCenter
+
+// Hook vào hàm postNotification để xem app đang làm gì
+- (void)postNotificationName:(NSString *)aName object:(id)anObject userInfo:(NSDictionary *)aUserInfo {
     
-    // Hiện thông báo để test
-    dispatch_async(dispatch_get_main_queue(), ^{
-        UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Bắt được tin!"
-                                                                       message:@"Đã thấy tin nhắn mới qua Service!"
-                                                                preferredStyle:UIAlertControllerStyleAlert];
-        [alert addAction:[UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:nil]];
-        UIWindow *window = [UIApplication sharedApplication].keyWindow;
-        [window.rootViewController presentViewController:alert animated:YES completion:nil];
-    });
+    // Lọc xem có tên nào liên quan đến "Message" hay "Chat" không
+    if ([aName containsString:@"Message"] || [aName containsString:@"Chat"]) {
+        // Nếu thấy, mình in ra log để biết chính xác tên nó là gì
+        NSLog(@"TweakSystem: Phát hiện tin nhắn! Tên thông báo: %@", aName);
+        
+        // Hiện thông báo để mình chắc chắn 100% là mình đã "chạm" được vào nó
+        dispatch_async(dispatch_get_main_queue(), ^{
+            UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Bắt được rồi!" 
+                                                                           message:[NSString stringWithFormat:@"Tên hàm: %@", aName] 
+                                                                    preferredStyle:UIAlertControllerStyleAlert];
+            [alert addAction:[UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:nil]];
+            UIWindow *window = [UIApplication sharedApplication].keyWindow;
+            [window.rootViewController presentViewController:alert animated:YES completion:nil];
+        });
+    }
+    
+    %orig;
 }
 
 %end
