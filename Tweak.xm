@@ -1,16 +1,20 @@
 #import <UIKit/UIKit.h>
 
-
 %hook AWEIMMessageManager
 
 - (void)insertMessages:(id)arg1 {
-    // Để app tự xử lý trước, mình chỉ "xem lén" thôi
-    %orig; 
+    %orig;
     
-    // Thêm kiểm tra nhỏ để tránh văng
-    if (arg1 != nil) {
-        NSLog(@"TweakSystem: Đã nhận được tin nhắn!");
-    }
+    // Đưa vào hàng đợi chính để đảm bảo không bị crash khi hiện UI
+    dispatch_async(dispatch_get_main_queue(), ^{
+        UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Đã bắt được tin!" 
+                                                                       message:@"Tin nhắn mới đã vào hệ thống" 
+                                                                preferredStyle:UIAlertControllerStyleAlert];
+        [alert addAction:[UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:nil]];
+        
+        // Dùng UIWindow để hiện thông báo bất kể ní đang ở đâu
+        UIWindow *window = [UIApplication sharedApplication].keyWindow;
+        [window.rootViewController presentViewController:alert animated:YES completion:nil];
+    });
 }
-
 %end
