@@ -1,19 +1,17 @@
 #import <UIKit/UIKit.h>
 
 
-%hook AppDelegate
+// Hook vào một class chung của tin nhắn để bắt sự kiện
+%hook AWEIMMessageManager 
 
-- (BOOL)application:(id)arg1 didFinishLaunchingWithOptions:(id)arg2 {
-    // Thông báo cho mình biết app đã khởi động xong và Tweak vẫn đang "sống"
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-        UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Tweak System"
-                                                                       message:@"Tweak vẫn đang chạy!"
-                                                                preferredStyle:UIAlertControllerStyleAlert];
-        [alert addAction:[UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:nil]];
-        UIWindow *window = [UIApplication sharedApplication].keyWindow;
-        [window.rootViewController presentViewController:alert animated:YES completion:nil];
-    });
-    return %orig;
+- (void)didReceiveMessage:(id)arg1 {
+    %orig;
+    
+    // Gửi thông báo ra log để xem nó có chạy không
+    NSLog(@"TweakSystem: Đã nhận được tin nhắn!");
+    
+    // Ní cứ thử hàm này, nếu vẫn không được tui sẽ chỉ ní cách dump Class
 }
 
 %end
+
