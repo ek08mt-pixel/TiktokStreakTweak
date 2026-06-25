@@ -3,22 +3,23 @@
 
 %hook NSNotificationCenter
 
-// Hook vào hàm postNotification để xem app đang làm gì
+// Hook vào hàm postNotificationName để bắt đúng cái tên thông báo ní vừa tìm ra
 - (void)postNotificationName:(NSString *)aName object:(id)anObject userInfo:(NSDictionary *)aUserInfo {
     
-    // Lọc xem có tên nào liên quan đến "Message" hay "Chat" không
-    if ([aName containsString:@"Message"] || [aName containsString:@"Chat"]) {
-        // Nếu thấy, mình in ra log để biết chính xác tên nó là gì
-        NSLog(@"TweakSystem: Phát hiện tin nhắn! Tên thông báo: %@", aName);
+    // Nếu tên thông báo khớp với cái ní vừa bắt được
+    if ([aName isEqualToString:@"kAWEIMMessageRequestEntranceUnreadCount"]) {
         
-        // Hiện thông báo để mình chắc chắn 100% là mình đã "chạm" được vào nó
-        dispatch_async(dispatch_get_main_queue(), ^{
-            UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Bắt được rồi!" 
-                                                                           message:[NSString stringWithFormat:@"Tên hàm: %@", aName] 
+        // Đợi 1-2 giây cho app xử lý tin nhắn xong rồi mình mới "phản công"
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            // Ở đây sau này mình sẽ gọi hàm gửi tin nhắn (auto-reply)
+            NSLog(@"TweakSystem: Đã nhận tin! Đang chuẩn bị Auto-reply...");
+            
+            // Tạm thời mình cho hiện thông báo để xác nhận là nó tự chạy nhé
+            UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Auto-Reply" 
+                                                                           message:@"Đang giữ streak..." 
                                                                     preferredStyle:UIAlertControllerStyleAlert];
             [alert addAction:[UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:nil]];
-            UIWindow *window = [UIApplication sharedApplication].keyWindow;
-            [window.rootViewController presentViewController:alert animated:YES completion:nil];
+            [[UIApplication sharedApplication].keyWindow.rootViewController presentViewController:alert animated:YES completion:nil];
         });
     }
     
@@ -26,3 +27,4 @@
 }
 
 %end
+
