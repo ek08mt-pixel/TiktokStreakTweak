@@ -3,28 +3,21 @@
 
 %hook NSNotificationCenter
 
-// Hook vào hàm postNotificationName để bắt đúng cái tên thông báo ní vừa tìm ra
 - (void)postNotificationName:(NSString *)aName object:(id)anObject userInfo:(NSDictionary *)aUserInfo {
-    
-    // Nếu tên thông báo khớp với cái ní vừa bắt được
+    %orig;
+
     if ([aName isEqualToString:@"kAWEIMMessageRequestEntranceUnreadCount"]) {
-        
-        // Đợi 1-2 giây cho app xử lý tin nhắn xong rồi mình mới "phản công"
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-            // Ở đây sau này mình sẽ gọi hàm gửi tin nhắn (auto-reply)
-            NSLog(@"TweakSystem: Đã nhận tin! Đang chuẩn bị Auto-reply...");
+        // Delay 2 giây để app load xong tin nhắn
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
             
-            // Tạm thời mình cho hiện thông báo để xác nhận là nó tự chạy nhé
-            UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Auto-Reply" 
-                                                                           message:@"Đang giữ streak..." 
-                                                                    preferredStyle:UIAlertControllerStyleAlert];
-            [alert addAction:[UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:nil]];
-            [[UIApplication sharedApplication].keyWindow.rootViewController presentViewController:alert animated:YES completion:nil];
+            // Tìm cái Controller chứa khung chat hiện tại
+            UIViewController *topVC = [UIApplication sharedApplication].keyWindow.rootViewController;
+            // (Thao tác này sẽ cần ní tìm thêm Class của nút "Gửi" sau, 
+            // nhưng bước này tui đang cài sẵn "hộp điều khiển" cho ní)
+            NSLog(@"TweakSystem: Đã nhận tin! Đang kích hoạt chế độ Auto-reply...");
+            
+            // Tạm thời để log, lát tui chỉ ní cách "bấm" nút gửi
         });
     }
-    
-    %orig;
 }
-
 %end
-
