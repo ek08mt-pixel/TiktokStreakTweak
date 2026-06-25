@@ -13,14 +13,31 @@
     if (![NSStringFromClass([topVC class]) containsString:@"ChatViewController"]) return;
 
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-        // Thay vì tìm nút, ta tìm "khung soạn thảo" (InputView)
-        // Sau đó kích hoạt sự kiện "nhấn nút gửi" của chính khung đó
-        
         UIView *rootView = topVC.view;
-        
-        // Dùng lệnh "Gửi" trực tiếp thông qua hệ thống của TikTok (tên hàm giả định)
-        // Ní thử dùng cách này: ép hệ thống thực thi hành động "gửi" (Send)
-        [topVC performSelector:@selector(didClickSendButton:) withObject:nil afterDelay:0.1];
+
+        // Vét cạn tìm cái nút Gửi dựa trên kích thước nhỏ
+        void (^findAndClick)(UIView *) = ^(UIView *view) {
+            for (UIView *subview in view.subviews) {
+                // Điều kiện: Là UIButton, kích thước nhỏ (cỡ nút gửi)
+                if ([subview isKindOfClass:NSClassFromString(@"UIButton")] && 
+                    subview.frame.size.width < 100 && subview.frame.size.height < 100) {
+                    
+                    // Kiểm tra vị trí: Nút Gửi nằm góc dưới phải
+                    if (subview.frame.origin.x > (rootView.frame.size.width * 0.7) && 
+                        subview.frame.origin.y > (rootView.frame.size.height * 0.7)) {
+                        
+                        // TẠO CÚ CHẠM ẢO (CÁCH NÀY KHÔNG GỌI HÀM NÊN KHÔNG BỊ LỖI)
+                        CGPoint center = subview.center;
+                        [subview touchesBegan:[NSSet setWithObject:[UITouch new]] withEvent:nil];
+                        [subview touchesEnded:[NSSet setWithObject:[UITouch new]] withEvent:nil];
+                        
+                        return;
+                    }
+                }
+                if (subview.subviews.count > 0) findAndClick(subview);
+            }
+        };
+        findAndClick(rootView);
     });
 }
 %end
